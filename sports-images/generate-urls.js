@@ -1,28 +1,29 @@
 const fs = require('fs');
 const path = require('path');
 
-const username = 'theoz-n'; // replace with your GitHub username
+const username = 'YOUR_USERNAME'; // replace with your GitHub username
 const repo = 'sports-images';     // your repo name
 const branch = 'main';            // usually 'main'
 
 const baseUrl = `https://raw.githubusercontent.com/${username}/${repo}/${branch}`;
 
-function walkDir(dir, obj) {
-  const files = fs.readdirSync(dir);
-  files.forEach(file => {
-    const fullPath = path.join(dir, file);
-    const stat = fs.statSync(fullPath);
-    if (stat.isDirectory()) {
-      obj[file] = [];
-      walkDir(fullPath, obj[file]);
-    } else {
-      const relativePath = fullPath.replace(__dirname + path.sep, '').replace(/\\/g, '/');
-      obj.push(`${baseUrl}/${relativePath}`);
-    }
-  });
+// Function to generate URLs for a single folder
+function getImages(folder) {
+  const files = fs.readdirSync(folder);
+  const urls = files
+    .filter(file => !fs.statSync(path.join(folder, file)).isDirectory()) // only files
+    .map(file => `${baseUrl}/${folder.replace(/\\/g, '/')}/${file}`);
+  return urls;
 }
 
+// Read all folders in the main directory
+const folders = fs.readdirSync('.');
 const images = {};
-walkDir('.', images);
+
+folders.forEach(folder => {
+  if (fs.statSync(folder).isDirectory()) {
+    images[folder] = getImages(folder);
+  }
+});
 
 console.log(JSON.stringify(images, null, 2));
