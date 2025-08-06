@@ -7,16 +7,14 @@ const branch = 'main';            // usually 'main'
 
 const baseUrl = `https://raw.githubusercontent.com/${username}/${repo}/${branch}`;
 
-// Function to generate URLs for a single folder
+// Function to generate URLs for a folder
 function getImages(folder) {
-  const files = fs.readdirSync(folder);
-  const urls = files
-    .filter(file => !fs.statSync(path.join(folder, file)).isDirectory()) // only files
+  return fs.readdirSync(folder)
+    .filter(file => fs.statSync(path.join(folder, file)).isFile()) // only files
     .map(file => `${baseUrl}/${folder.replace(/\\/g, '/')}/${file}`);
-  return urls;
 }
 
-// Read all folders in the main directory
+// Main code
 const folders = fs.readdirSync('.');
 const images = {};
 
